@@ -1,12 +1,12 @@
-# import 
 from os import system, name
+
 def clear():
-      if name == 'nt':
+    if name == 'nt':
         _ = system('cls')
-      else:
+    else:
         _ = system('clear')
-        
-# variable names
+
+# Variable initialization
 guessed = False
 guessing = True
 
@@ -18,157 +18,88 @@ body2 = " "
 leftLeg = " "
 rightLeg = " "
 
-# game intro
-print("-"*20)
+# Game intro
+print("-" * 20)
 print("|Let's play hangman!|")
-print("-"*20)
+print("-" * 20)
 print("")
-paragraph = f'''
-There are some rules before your start playing hangman.
+paragraph = '''
+There are some rules before you start playing hangman.
 
-1. Your word input must only contain letters and spaces, there cannot be numbers or special characters
+1. Your word input must only contain letters and spaces; no numbers or special characters.
 
-2. Your guess input must also only be letters 
+2. Your guess input must also only be letters.
 
-3. Your guess input should be only one letter unless you are certain what the word is
+3. Your guess input should be only one letter unless you are certain of the word.
 
-4. At most your guess can be two words, three or more is not allowed
+4. At most, your guess can be two words; three or more is not allowed.
 
-And last, try your best to lose :)
+And last, try your best to win!
 
-
-Now lets begin playing
-
-
-
+Now let's begin playing
 '''
 print(paragraph)
-user_input = input("Enter a word: ")
+user_input = input("Enter a word: ").lower()
 length = len(user_input)
-user_input = user_input.lower()
 
-for i in range(1,35):
-     print("")
+# Initialize hangman drawing
+hangman_parts = [head, leftArm, rightArm, body, body2, leftLeg, rightLeg]
+incorrect_guesses = 0
+max_incorrect_guesses = 6
 
+# Initialize guessed word display
+table = ['_' if ch != ' ' else ' ' for ch in user_input]
+display = ' '.join(table)
 
-# hangman drawing
-print("-"*10+"|")
+print("\n" + '-' * 10 + "|")
 print("|")
 print("|")
 print("|")
 print("|")
 print("|")
-print("_"*5)
+print("_" * 5)
 print("")
+print(display)
 
-# word guessing line
-table = []
-for i in range(length):
-    if user_input[i] == ' ':
-        table.append('  ')
-    else:
-        table.append('_ ')
+# Guessing loop
+while not guessed and incorrect_guesses < max_incorrect_guesses:
+    guess = input('Enter a letter: ').strip().lower()
 
-x = ''
-for j in range(len(table)):
-    x += table[j]
+    if len(guess) != 1 or not guess.isalpha():
+        print('Invalid input. Please enter a single letter.')
+        continue
 
-print(x)
-print('')
-
-# guessing
-correct_guess = []
-incorrect_guesses = ""
-while not guessed:
-    guess = input('Enter a letter: ')
-    if (len(guess) > 1 or guess == ' ') and len(guess) != length:
-        print('try again')
-
-    else:
-        guess.strip()
-        clear()
-        guess = guess.strip()
-        guess = guess.lower()
-        i = 0
-        flag = False
-        if len(guess) == 1:
-            while i < len(user_input):
-                if guess == user_input[i]:
-                    table[i] = user_input[i]
-                    flag = True
-                i += 1
-            
-            x = ''
-            for j in range(len(table)):
-                x += table[j]
+    clear()
     
-            if guess in incorrect_guesses:
-                flag = False
-                print("try again") 
-        
-            elif flag == False:
-                incorrect_guesses += guess+" "
-                counter = len(incorrect_guesses)    
-                if counter == 2*1:
-                    head = "o"
-                elif counter == 0:
-                    print("You won?")
-                elif counter == 2*2:
-                    body = "|"
-                    body2 = '|'
-                elif counter == 2*3:
-                    leftArm = "\\"
-                elif counter == 2*4:
-                    rightArm = "/"
-                elif counter == 2*5:
-                    leftLeg = "/"
-                elif counter == 2*6:
-                    rightLeg = "\\"
-                    guessed = True
-                    print("GAME OVER")
-                    print("Try again")
-                    print("The word is,", user_input)
-                    print(" ")
-    
-            
-            print(incorrect_guesses)
-            print("-"*10+"|")
-            print("|"+" "*9+head)
-            print("|"+" "*8+leftArm+body+rightArm)
-            print("|"+" "*9+body2)
-            print("|"+" "*8+leftLeg+" "+rightLeg)
-            print("|")
-            print("_"*5)
-            print("")
-            print(x)
+    if guess in user_input:
+        # Update table with correct guesses
+        table = [guess if user_input[i] == guess else table[i] for i in range(length)]
+        display = ' '.join(table)
+    else:
+        # Update hangman drawing for incorrect guesses
+        incorrect_guesses += 1
 
-        x = ''
-        for j in range(len(table)):
-            x += table[j]
-            
-        if guess == user_input:
-            guessed = True
-            print(incorrect_guesses)
-            print("-"*10+"|")
-            print("|"+" "*9+head)
-            print("|"+" "*8+leftArm+body+rightArm)
-            print("|"+" "*9+body2)
-            print("|"+" "*8+leftLeg+" "+rightLeg)
-            print("|")
-            print("_"*5)
-            print("")
-            print(user_input)
-            print("You won?")
-            
-        space = False
-        for i in range(len(user_input)):
-            if user_input[i] == ' ':
-                space = True
-                break
-        if space == True:
-            if len(correct_guess) == user_input.index(' '):
-                correct_guess += ' '
+    # Check for win condition
+    if '_' not in table:
+        guessed = True
+        print("Congratulations! You won!")
+        break
 
-        if x == user_input:
-            guessed = True
-            print("You won :(")
+    # Draw hangman
+    print('-' * 10 + "|")
+    print(f"|{' ' * 9}{head}")
+    print(f"|{' ' * 8}{leftArm}{body}{rightArm}")
+    print(f"|{' ' * 9}{body2}")
+    print(f"|{' ' * 8}{leftLeg} {rightLeg}")
+    print(f"|")
+    print("_" * 5)
+    print("")
+    print(display)
+
+    if incorrect_guesses == max_incorrect_guesses:
+        print("GAME OVER")
+        print(f"The word was: {user_input}")
+
+# Final message if won
+if guessed:
+    print(f"Congratulations! You've guessed the word: {user_input}")
